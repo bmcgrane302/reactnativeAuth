@@ -1,20 +1,26 @@
 import React, { Component } from 'react';
 import firebase from 'firebase';
 import { Text } from 'react-native';
-import { Button, Card, CardSection, Input } from './common';
+import { Button, Card, CardSection, Input, Spinner } from './common';
 
 class LoginForm extends Component {
   state = {
     email: '',
     password: '',
-    error: ''
+    error: '',
+    loading: false
   }
 
+
+
   onButtonPress() {
+
    const { email, password } = this.state;
 
+   this.setState({error: 'p', loading: true});
+
    firebase.auth().signInWithEmailAndPassword(email, password)
-     .catch(()=>{
+     .catch(()=> {
        firebase.auth().createUserWithEmailAndPassword(email, password)
         .catch(()=> {
           this.setState({error: 'Authenication Failed'});
@@ -22,7 +28,19 @@ class LoginForm extends Component {
      });
   }
 
+  renderButton() {
+    if (this.state.loading){
+      return <Spinner size='small' />
+    }
+    return (
+      <Button onPress={this.onButtonPress.bind(this)}>
+        Log In
+      </Button>
+    );
+  }
+
   render () {
+    console.log(this.state);
     return (
       <Card>
        <CardSection>
@@ -30,7 +48,7 @@ class LoginForm extends Component {
            placeholder='user@gmail.com'
            label='Email'
            value={this.state.email}
-           onChangeText={email=>this.setState({email: email})}
+           onChangeText={email=>this.setState({email})}
          />
        </CardSection>
 
@@ -40,16 +58,14 @@ class LoginForm extends Component {
            placeholder='password'
            label='Password'
            value={this.state.password}
-           onChangeText={password=>this.setState({password: password})}
+           onChangeText={password=>this.setState({password})}
          />
        </CardSection>
 
        <Text style={styles.errorTextStyle}>{this.state.error}</Text>
 
        <CardSection>
-         <Button onButtonPress={this.onButtonPress.bind(this)}>
-           Log In
-         </Button>
+        {this.renderButton()}
        </CardSection>
       </Card>
 
